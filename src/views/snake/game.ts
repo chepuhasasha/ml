@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { buffer } from '@tensorflow/tfjs'
 
 export enum Cell {
   VOID = 0,
@@ -22,19 +23,24 @@ export type Point = {
   y: number
 }
 
+export interface State {
+  f: [number, number][]
+  s: [number, number][]
+}
+
 export const useSnakeGameEnv = defineStore('snake', {
   state: () => {
     return {
-      game: {
-        width: 9 as number,
-        height: 9 as number
-      },
+      width: 9 as number,
+      height: 9 as number,
       food: [] as Point[],
       snake: {
         dir: 0 as Directions,
         body: [] as Point[]
       },
-      score: 0 as number
+      score: 0 as number,
+      nam_actions: 3 as number,
+      all_actions: [Action.FORWARD, Action.LEFT, Action.RIGHT]
     }
   },
   actions: {
@@ -42,8 +48,8 @@ export const useSnakeGameEnv = defineStore('snake', {
       const food = Array(n).fill({ x: 0, y: 0 })
       this.food = [...food].map((f) => {
         return {
-          x: Math.floor(Math.random() * this.game.width),
-          y: Math.floor(Math.random() * this.game.height)
+          x: Math.floor(Math.random() * this.width),
+          y: Math.floor(Math.random() * this.height)
         }
       })
     },
@@ -51,11 +57,11 @@ export const useSnakeGameEnv = defineStore('snake', {
       const vertical = Math.random() > 0.5 ? true : false
       const head = {
         x: vertical
-          ? Math.floor(Math.random() * this.game.width)
-          : Math.floor(Math.random() * (this.game.width - n - 1)) + 1,
+          ? Math.floor(Math.random() * this.width)
+          : Math.floor(Math.random() * (this.width - n - 1)) + 1,
         y: vertical
-          ? Math.floor(Math.random() * (this.game.height - n - 1)) + 1
-          : Math.floor(Math.random() * this.game.height)
+          ? Math.floor(Math.random() * (this.height - n - 1)) + 1
+          : Math.floor(Math.random() * this.height)
       }
       const snake = Array(n).fill({ x: 0, y: 0 })
       this.snake.body = [...snake].map((p, i) => {
@@ -66,22 +72,16 @@ export const useSnakeGameEnv = defineStore('snake', {
       })
       this.snake.dir = vertical ? Directions.UP : Directions.LEFT
     },
-    step(action: Action) {
+    step(action: Action, is_check_step: boolean = false) {
       let reward = -0.2
-      let is_eat = false
-      let is_done = false
+      let fruitEaten = false
+      let done = false
       const head: Point = {
         ...this.snake.body[0]
       }
       const die = () => {
-        reward -= 100
-        is_done = true
-        console.log('DIE')
-      }
-      const eat = () => {
-        reward += 100
-        is_eat = true
-        console.log('EAT!')
+        reward -= 10
+        done = true
       }
       const move = {
         up: () => {
@@ -92,7 +92,7 @@ export const useSnakeGameEnv = defineStore('snake', {
         },
         down: () => {
           head.y += 1
-          if (head.y >= this.game.height) {
+          if (head.y >= this.height) {
             die()
           }
         },
@@ -104,12 +104,12 @@ export const useSnakeGameEnv = defineStore('snake', {
         },
         right: () => {
           head.x += 1
-          if (head.x >= this.game.width) {
+          if (head.x >= this.width) {
             die()
           }
         }
       }
-      const forward = () => {
+      const go = () => {
         if (this.snake.dir === Directions.UP) {
           move.up()
         } else if (this.snake.dir === Directions.DOWN) {
@@ -143,35 +143,57 @@ export const useSnakeGameEnv = defineStore('snake', {
         }
       }
 
-      forward()
+      go()
 
-      this.food.forEach((f, i) => {
+      const targetSnake = !is_check_step ? this.snake.body : [...this.snake.body]
+      const targetFood = !is_check_step ? this.food : [...this.food]
+
+      targetFood.forEach((f, i) => {
         if (f.x === head.x && f.y === head.y) {
-          eat()
-          this.food[i].x = Math.floor(Math.random() * this.game.width)
-          this.food[i].y = Math.floor(Math.random() * this.game.height)
+          reward += 10 + 0.2
+          fruitEaten = true
+          targetFood[i].x = Math.floor(Math.random() * this.width)
+          targetFood[i].y = Math.floor(Math.random() * this.height)
         }
       })
-      this.snake.body.forEach((p) => {
+      targetSnake.forEach((p) => {
         if (p.x === head.x && p.y === head.y) {
           die()
         }
       })
-      if (!is_eat) {
-        this.snake.body.pop()
+
+      if (!fruitEaten) {
+        targetSnake.pop()
       }
-      this.snake.body.unshift({ ...head })
-      this.score += reward
+      targetSnake.unshift({ ...head })
+
+      if (!is_check_step) {
+        this.score += reward
+      }
 
       return {
+        state: {
+          f: targetFood.map((p) => [p.x, p.y]),
+          s: targetSnake.map((p) => [p.x, p.y])
+        } as State,
         reward,
-        is_done
+        done,
+        fruitEaten
       }
     },
     reset() {
       this.score = 0
-      this.initFood(2)
-      this.initSnake(4)
+      this.initFood(1)
+      this.initSnake(2)
+    },
+    randomAction() {
+      return Math.floor(this.nam_actions * Math.random())
+    },
+    getState(): State {
+      return {
+        f: this.food.map((p) => [p.x, p.y]),
+        s: this.snake.body.map((p) => [p.x, p.y])
+      }
     }
   }
 })
