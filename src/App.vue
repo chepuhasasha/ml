@@ -45,8 +45,11 @@ button
   border: none
   background: black
   color: white
-  padding: 4px
+  padding: 4px 6px
+input
+  padding: 10px
 input[type="range"]
+  padding: 0px
   -webkit-appearance: none
   appearance: none
   background: transparent

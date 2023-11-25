@@ -1,5 +1,5 @@
 import { createDeepQNetwork } from './dqn'
-import { useSnakeGameEnv } from './game'
+import { SnakeGame } from './game'
 import {
   train,
   tidy,
@@ -16,7 +16,7 @@ import { Memory } from './memory'
 import { getStateTensor } from './utils'
 
 export class SnakeGameAgent {
-  game = useSnakeGameEnv()
+  game: SnakeGame
   onlineNetwork: Sequential
   targetNetwork: Sequential
   optimizer: AdamOptimizer
@@ -34,15 +34,16 @@ export class SnakeGameAgent {
     private epsilonDecayFrames: number,
     private learningRate: number
   ) {
+    this.game = new SnakeGame(9, 9, 1, 2)
     this.onlineNetwork = createDeepQNetwork(
       this.game.height,
       this.game.width,
-      this.game.nam_actions
+      this.game.num_actions
     )
     this.targetNetwork = createDeepQNetwork(
       this.game.height,
       this.game.width,
-      this.game.nam_actions
+      this.game.num_actions
     )
     this.targetNetwork.trainable = false
     this.optimizer = train.adam(this.learningRate)
@@ -112,7 +113,7 @@ export class SnakeGameAgent {
         const qs = this.onlineNetwork
           .apply(stateTensor, { training: true })
           // @ts-ignore
-          .mul(oneHot(actionTensor, this.game.nam_actions))
+          .mul(oneHot(actionTensor, this.game.num_actions))
           .sum(-1)
 
         const rewardTensor = tensor1d(batch.map((example) => example.reward))
