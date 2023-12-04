@@ -31,8 +31,8 @@ export interface StepResult {
 }
 
 export class SnakeGame {
-  private food: Point[] = []
-  private snake: Point[] = []
+  public food: Point[] = []
+  public snake: Point[] = []
   snake_dir: Directions = Directions.UP
   readonly num_actions = 3
   readonly all_actions = [Action.FORWARD, Action.RIGHT, Action.LEFT]

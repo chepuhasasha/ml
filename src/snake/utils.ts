@@ -1,5 +1,5 @@
 import type { State } from './game'
-import { buffer } from '@tensorflow/tfjs'
+import { LayersModel, buffer } from '@tensorflow/tfjs'
 
 export const getStateTensor = (state: State | State[], h: number, w: number) => {
   if (!Array.isArray(state)) {
@@ -22,4 +22,18 @@ export const getStateTensor = (state: State | State[], h: number, w: number) => 
     })
   }
   return b.toTensor()
+}
+
+export function copyWeights(destNetwork: LayersModel, srcNetwork: LayersModel) {
+  let originalDestNetworkTrainable
+  if (destNetwork.trainable !== srcNetwork.trainable) {
+    originalDestNetworkTrainable = destNetwork.trainable
+    destNetwork.trainable = srcNetwork.trainable
+  }
+
+  destNetwork.setWeights(srcNetwork.getWeights())
+
+  if (originalDestNetworkTrainable != null) {
+    destNetwork.trainable = originalDestNetworkTrainable
+  }
 }

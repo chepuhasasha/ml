@@ -6,7 +6,7 @@
   canvas(ref='cvs')
 </template>
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref, type PropType } from 'vue'
+import { onMounted, onUnmounted, ref, type PropType, watch } from 'vue'
 import { SnakeGame, Action } from './game'
 
 const cvs = ref<HTMLCanvasElement | null>(null)
@@ -24,7 +24,7 @@ const render = () => {
     const ctx = cvs.value.getContext('2d')
     if (!ctx) return
     ctx.clearRect(0, 0, cvs.value.width, cvs.value.height)
-
+    
     let x = 0
     let y = 0
     props.game.food.forEach((point) => {

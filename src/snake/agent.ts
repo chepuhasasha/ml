@@ -16,7 +16,6 @@ import { Memory } from './memory'
 import { getStateTensor } from './utils'
 
 export class SnakeGameAgent {
-  game: SnakeGame
   onlineNetwork: Sequential
   targetNetwork: Sequential
   optimizer: AdamOptimizer
@@ -28,13 +27,13 @@ export class SnakeGameAgent {
   cumulativeReward_: number = 0
 
   constructor(
-    private replayBufferSize: number,
-    private epsilonInit: number,
-    private epsilonFinal: number,
-    private epsilonDecayFrames: number,
-    private learningRate: number
+    public game: SnakeGame,
+    public replayBufferSize: number,
+    public epsilonInit: number,
+    public epsilonFinal: number,
+    public epsilonDecayFrames: number,
+    public learningRate: number
   ) {
-    this.game = new SnakeGame(9, 9, 1, 2)
     this.onlineNetwork = createDeepQNetwork(
       this.game.height,
       this.game.width,

@@ -43,9 +43,15 @@ button
   cursor: pointer
   border-radius: 0
   border: none
-  background: black
-  color: white
-  padding: 4px 6px
+  padding: 10px
+  background: white
+  color: black
+  border: 1px solid black
+  box-shadow: 0px 8px 0px -4px black
+  &:hover
+    background: black
+    color: white
+    border-color: white
 input
   padding: 10px
 input[type="range"]
