@@ -1,7 +1,10 @@
+import { loadLayersModel, type LayersModel, tidy } from '@tensorflow/tfjs'
+import { getStateTensor } from './utils'
+
 export enum Action {
   FORWARD = 0,
-  LEFT = 1,
-  RIGHT = 2
+  RIGHT = 1,
+  LEFT = 2
 }
 export enum Directions {
   UP = 0,
@@ -20,12 +23,24 @@ export interface State {
   s: [number, number][]
 }
 
+export interface StepResult {
+  state: State
+  reward: number
+  done: boolean
+  fruitEaten: boolean
+}
+
 export class SnakeGame {
-  readonly food: Point[] = []
-  readonly snake: Point[] = []
+  private food: Point[] = []
+  private snake: Point[] = []
   snake_dir: Directions = Directions.UP
   readonly num_actions = 3
-  readonly all_actions = [Action.FORWARD, Action.LEFT, Action.RIGHT]
+  readonly all_actions = [Action.FORWARD, Action.RIGHT, Action.LEFT]
+  public listeners: ((data: StepResult) => void)[] = []
+  q_net: LayersModel | null = null
+  public auto_play: boolean = false
+  public interval: number = 1000
+  private job: number = 0
 
   constructor(
     public height: number,
@@ -169,8 +184,7 @@ export class SnakeGame {
       targetSnake.pop()
     }
     targetSnake.unshift({ ...head })
-
-    return {
+    const result = {
       state: {
         f: targetFood.map((p) => [p.x, p.y]),
         s: targetSnake.map((p) => [p.x, p.y])
@@ -179,5 +193,52 @@ export class SnakeGame {
       done,
       fruitEaten
     }
+    this.listeners.forEach((cb) => {
+      cb(result)
+    })
+    return result
+  }
+  public onStep(cb: (data: StepResult) => void) {
+    this.listeners.push(cb)
+  }
+  public async loadModel(url: string) {
+    try {
+      this.q_net = await loadLayersModel(url)
+      this.q_net.predict(getStateTensor(this.getState(), this.height, this.width))
+      this.reset()
+      console.log('Model loaded.')
+    } catch (err) {
+      console.log('Failed to load model.')
+    }
+  }
+  public predictAction() {
+    let bestAction: null | number = null
+    tidy(() => {
+      if (this.q_net === null) return
+      const stateTensor = getStateTensor(this.getState(), this.height, this.width)
+      const predictOut = this.q_net.predict(stateTensor)
+      if (Array.isArray(predictOut)) {
+        bestAction = this.all_actions[predictOut[0].argMax(-1).dataSync()[0]]
+      } else {
+        bestAction = this.all_actions[predictOut.argMax(-1).dataSync()[0]]
+      }
+    })
+    return bestAction
+  }
+
+  public autoPlay() {
+    if (this.auto_play) {
+      if (this.job) {
+        clearInterval(this.job)
+      }
+    } else {
+      this.job = setInterval(() => {
+        const action = this.predictAction()
+        if (action != null) {
+          this.step(action)
+        }
+      }, this.interval)
+    }
+    this.auto_play = !this.auto_play
   }
 }
