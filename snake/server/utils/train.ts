@@ -1,6 +1,6 @@
 import type { SnakeGameAgent } from './agent'
 import * as tf from '@tensorflow/tfjs'
-import { copyWeights } from './utils'
+import { copyWeights } from '@/common'
 
 class MovingAverager {
   buffer: number[] = []

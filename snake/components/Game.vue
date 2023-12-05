@@ -6,8 +6,8 @@
   canvas(ref='cvs')
 </template>
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref, type PropType, watch } from 'vue'
-import { SnakeGame, Action } from './game'
+import { onMounted, onUnmounted, ref, type PropType } from 'vue'
+import { SnakeGame, Action } from '@/common'
 
 const cvs = ref<HTMLCanvasElement | null>(null)
 const props = defineProps({

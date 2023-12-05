@@ -1,5 +1,5 @@
 import { util } from '@tensorflow/tfjs'
-import type { Action, State } from './game'
+import type { Action, State } from '@/common'
 
 export interface BufferItem {
   state: State

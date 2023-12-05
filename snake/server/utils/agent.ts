@@ -1,5 +1,5 @@
 import { createDeepQNetwork } from './dqn'
-import { SnakeGame } from './game'
+import { SnakeGame, getStateTensor } from '@/common'
 import {
   train,
   tidy,
@@ -13,7 +13,6 @@ import {
   dispose
 } from '@tensorflow/tfjs'
 import { Memory } from './memory'
-import { getStateTensor } from './utils'
 
 export class SnakeGameAgent {
   onlineNetwork: Sequential

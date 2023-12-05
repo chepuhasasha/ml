@@ -232,6 +232,7 @@ export class SnakeGame {
         clearInterval(this.job)
       }
     } else {
+      // @ts-ignore
       this.job = setInterval(() => {
         const action = this.predictAction()
         if (action != null) {
