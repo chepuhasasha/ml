@@ -1,23 +1,21 @@
 {
-  "name": "nuxt-app",
-  "private": true,
-  "type": "module",
+  "name": "snake",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.js",
   "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "client:build": "npm run build --workspace=@snake/client",
+    "client:dev": "npm run dev --workspace=@snake/client",
+    "server:build": "npm run build --workspace=@snake/server",
+    "server:dev": "npm run dev --workspace=@snake/server",
+    "server:start": "npm run start --workspace=@snake/server",
+    "server:train": "npm run train --workspace=@snake/server",
+    "server:dev:train": "npm run dev:train --workspace=@snake/server"
   },
-  "devDependencies": {
-    "@nuxt/devtools": "latest",
-    "nuxt": "^3.8.2",
-    "pug": "^3.0.2",
-    "sass": "^1.69.5",
-    "vue": "^3.3.10",
-    "vue-router": "^4.2.5"
-  },
-  "dependencies": {
-    "@tensorflow/tfjs": "^4.14.0"
-  }
+  "author": "Sergei Batukov",
+  "license": "ISC",
+  "workspaces": [
+    "client",
+    "server"
+  ]
 }

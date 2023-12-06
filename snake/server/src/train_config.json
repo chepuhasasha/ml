@@ -1,0 +1,21 @@
+{
+  "game": {
+    "height": 9,
+    "width": 9,
+    "food": 1,
+    "snake": 2
+  },
+  "replayBufferSize": 1e4,
+  "epsilonInit": 0.5,
+  "epsilonFinal": 0.01,
+  "epsilonDecayFrames": 1e5,
+  "learningRate": 1e-3,
+  "batchSize": 64,
+  "gamma": 0.99,
+  "cumulativeRewardThreshold": 100,
+  "maxNumFrames": 1e6,
+  "syncEveryFrames": 1e3,
+  "savePath": "./models/dqn",
+  "logDir": "",
+  "useGPU": false
+}

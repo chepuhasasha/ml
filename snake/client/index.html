@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      SNAKE_CLIENT.init('#app', {
+        height: 9,
+        width: 9,
+        foodLen: 1,
+        snakeLen: 2,
+        cellSize: 40
+      })
+    </script>
+    <style>
+      * {
+        margin: 0;
+        box-sizing: border-box;
+      }
+      body {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        place-content: center;
+        place-items: center;
+        background: black;
+      }
+      #app {
+        width: max-content;
+        height: max-content;
+      }
+    </style>
+  </body>
+</html>
