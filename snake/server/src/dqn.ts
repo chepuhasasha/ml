@@ -1,4 +1,4 @@
-import { layers, sequential } from '@tensorflow/tfjs'
+import { layers, sequential } from '@tensorflow/tfjs-node-gpu'
 
 export const createDeepQNetwork = (h: number, w: number, numActions: number) => {
   const model = sequential()

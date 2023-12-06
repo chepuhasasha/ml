@@ -1,5 +1,5 @@
 import type { SnakeGameAgent } from "./agent";
-import * as tf from "@tensorflow/tfjs-node";
+import * as tf from "@tensorflow/tfjs-node-gpu";
 import { copyWeights } from "./utils";
 import fs from "fs";
 
@@ -56,7 +56,7 @@ export const train = async (
   let tPrev = new Date().getTime();
   let frameCountPrev = agent.frameCount;
   let averageReward100Best = -Infinity;
-  const trainLoop = async () => {
+  while(true) {
     agent.trainOnReplayBatch(batchSize, gamma, optimizer);
     const { cumulativeReward, done, fruitsEaten } = agent.playStep();
     console.log('▷ STEP:')
@@ -108,7 +108,7 @@ export const train = async (
         agent.frameCount >= maxNumFrames
       ) {
         // TODO(cais): Save online network.
-        return;
+        break;
       }
       if (averageReward100 > averageReward100Best) {
         averageReward100Best = averageReward100;
@@ -116,9 +116,8 @@ export const train = async (
           if (!fs.existsSync(savePath)) {
             fs.mkdir(savePath, { recursive: true }, () => {});
           }
-          await agent.onlineNetwork.save(`file://${savePath}`).then(() => {
-            console.log(`Saved DQN to ${savePath}`);
-          });
+          await agent.onlineNetwork.save(`file://${savePath}`)
+          console.log(`Saved DQN to ${savePath}`);
         }
       }
     }
@@ -126,8 +125,5 @@ export const train = async (
       copyWeights(agent.targetNetwork, agent.onlineNetwork);
       console.log("Sync'ed weights from online network to target network");
     }
-    trainLoop();
   };
-
-  trainLoop();
 };

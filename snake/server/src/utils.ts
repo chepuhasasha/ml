@@ -1,4 +1,4 @@
-import { loadLayersModel, LayersModel, buffer, tidy } from "@tensorflow/tfjs";
+import { loadLayersModel, LayersModel, buffer, tidy } from "@tensorflow/tfjs-node-gpu";
 
 export const getStateTensor = (
   state: State | State[],

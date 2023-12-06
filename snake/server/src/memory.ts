@@ -1,4 +1,4 @@
-import { util } from '@tensorflow/tfjs'
+import { util } from '@tensorflow/tfjs-node-gpu'
 import type { Action, State } from "./utils"
 
 export interface BufferItem {

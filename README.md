@@ -1,0 +1,1 @@
+Установить двайверы https://www.tensorflow.org/install/pip?hl=ru
