@@ -12,7 +12,7 @@ import {
   losses,
   variableGrads,
   dispose,
-} from "@tensorflow/tfjs";
+} from "@tensorflow/tfjs-node-gpu";
 import { Memory } from "./memory";
 
 export class SnakeGameAgent {
