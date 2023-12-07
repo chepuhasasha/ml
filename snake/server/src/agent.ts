@@ -12,7 +12,7 @@ import {
   losses,
   variableGrads,
   dispose,
-} from "@tensorflow/tfjs-node-gpu";
+} from "@tensorflow/tfjs";
 import { Memory } from "./memory";
 
 export class SnakeGameAgent {
@@ -124,7 +124,7 @@ export class SnakeGameAgent {
         const qs = this.onlineNetwork
           .apply(stateTensor, { training: true })
           // @ts-ignore
-          .mul(oneHot(actionTensor, this.game.num_actions))
+          .mul(oneHot(actionTensor, this.game.actions.length))
           .sum(-1);
 
         const rewardTensor = tensor1d(batch.map((example) => example[2]));

@@ -43,8 +43,8 @@ export const train = async (
   //   summaryWriter = tf.node.summaryFileWriter(logDir);
   // }
 
-  console.log("REPLAY BUFFER...");
   for (let i = 0; i < agent.replayBufferSize; ++i) {
+    console.log(`REPLAY BUFFER: ${i+1}/${agent.replayBufferSize}`);
     agent.playStep();
   }
   // Moving averager: cumulative reward across 100 most recent 100 episodes.
@@ -82,12 +82,14 @@ export const train = async (
       eatenAverager100.append(fruitsEaten);
       const averageReward100 = rewardAverager100.average();
       const averageEaten100 = eatenAverager100.average();
-      console.log(`█ FRAME #${agent.frameCount} - ${framesPerSecond.toFixed(1)} frames/s`)
-      console.log(`  ├ CUMULATIVE REWARD 100: ${averageReward100.toFixed(1)}`)
-      console.log(`  ├ EATEN 100 : ${averageEaten100.toFixed(2)}`)
-      console.log(`  └ STEPS: ${steps}`)
-      console.log(`  EPSILON: ${agent.epsilon.toFixed(3)}`)
-      console.log('\n')
+      console.log(
+        `█ FRAME #${agent.frameCount} - ${framesPerSecond.toFixed(1)} frames/s`
+      );
+      console.log(`  ├ CUMULATIVE REWARD 100: ${averageReward100.toFixed(1)}`);
+      console.log(`  ├ EATEN 100 : ${averageEaten100.toFixed(2)}`);
+      console.log(`  └ STEPS: ${steps}`);
+      console.log(`  EPSILON: ${agent.epsilon.toFixed(3)}`);
+      console.log("\n");
       steps = 0;
       // if (summaryWriter != null) {
       //   summaryWriter.scalar(

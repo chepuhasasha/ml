@@ -10,7 +10,7 @@ export const getStateTensor = (
     state = [state];
   }
   const numExamples = state.length;
-  const b = buffer([numExamples, h, w, 2]);
+  const b = buffer([+numExamples, +h, +w, 2]);
 
   for (let n = 0; n < numExamples; ++n) {
     if (state[n] == null) {
