@@ -56,20 +56,22 @@ export const train = async (
   let tPrev = new Date().getTime();
   let frameCountPrev = agent.frameCount;
   let averageReward100Best = -Infinity;
-  while(true) {
+  let steps = 0;
+  while (true) {
     agent.trainOnReplayBatch(batchSize, gamma, optimizer);
     const { cumulativeReward, done, fruitsEaten } = agent.playStep();
-    console.log('▷ STEP:')
-    console.log(
-      ` ├ REWARD: ${cumulativeReward}`
-    );
-    console.log(
-      ` ├ DONE: ${done}`
-    );
-    console.log(
-      ` └ FRUITS EATEN: ${fruitsEaten}`
-    );
-    
+    steps += 1;
+    // console.log('▷ STEP:')
+    // console.log(
+    //   ` ├ REWARD: ${cumulativeReward}`
+    // );
+    // console.log(
+    //   ` ├ DONE: ${done}`
+    // );
+    // console.log(
+    //   ` └ FRUITS EATEN: ${fruitsEaten}`
+    // );
+
     if (done) {
       const t = new Date().getTime();
       const framesPerSecond =
@@ -80,15 +82,13 @@ export const train = async (
       eatenAverager100.append(fruitsEaten);
       const averageReward100 = rewardAverager100.average();
       const averageEaten100 = eatenAverager100.average();
+      console.log(`█ FRAME #${agent.frameCount} - ${framesPerSecond.toFixed(1)} frames/s`)
+      console.log(`  ├ CUMULATIVE REWARD 100: ${averageReward100.toFixed(1)}`)
+      console.log(`  ├ EATEN 100 : ${averageEaten100.toFixed(2)}`)
+      console.log(`  └ STEPS: ${steps}`)
+      console.log(`  EPSILON: ${agent.epsilon.toFixed(3)}`)
       console.log('\n')
-      console.log(
-        `█ Frame #${agent.frameCount}: ` +
-          `cumulativeReward100=${averageReward100.toFixed(1)}; ` +
-          `eaten100=${averageEaten100.toFixed(2)} ` +
-          `(epsilon=${agent.epsilon.toFixed(3)}) ` +
-          `(${framesPerSecond.toFixed(1)} frames/s)`
-      );
-      console.log('\n')
+      steps = 0;
       // if (summaryWriter != null) {
       //   summaryWriter.scalar(
       //     "cumulativeReward100",
@@ -116,7 +116,7 @@ export const train = async (
           if (!fs.existsSync(savePath)) {
             fs.mkdir(savePath, { recursive: true }, () => {});
           }
-          await agent.onlineNetwork.save(`file://${savePath}`)
+          await agent.onlineNetwork.save(`file://${savePath}`);
           console.log(`Saved DQN to ${savePath}`);
         }
       }
@@ -125,5 +125,5 @@ export const train = async (
       copyWeights(agent.targetNetwork, agent.onlineNetwork);
       console.log("Sync'ed weights from online network to target network");
     }
-  };
+  }
 };

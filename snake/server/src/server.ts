@@ -1,6 +1,6 @@
 import express from "express";
 import path from "path";
-import { SnakeGame, Action } from "./utils";
+import { SnakeGame, Action } from "./game";
 import config from './train_config.json'
 const app = express();
 const port = 3000;

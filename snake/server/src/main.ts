@@ -1,4 +1,4 @@
-import { SnakeGame } from "./utils";
+import { SnakeGame } from "./game";
 import { train } from "./train";
 import { SnakeGameAgent } from "./agent";
 import config from './train_config.json'

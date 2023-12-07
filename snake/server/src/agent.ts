@@ -1,5 +1,6 @@
 import { createDeepQNetwork } from "./dqn";
-import { SnakeGame, getStateTensor } from "./utils";
+import { SnakeGame } from "./game";
+import { getStateTensor } from "./utils";
 import {
   train,
   tidy,
@@ -11,7 +12,7 @@ import {
   losses,
   variableGrads,
   dispose,
-} from "@tensorflow/tfjs";
+} from "@tensorflow/tfjs-node-gpu";
 import { Memory } from "./memory";
 
 export class SnakeGameAgent {
@@ -36,12 +37,12 @@ export class SnakeGameAgent {
     this.onlineNetwork = createDeepQNetwork(
       this.game.height,
       this.game.width,
-      this.game.num_actions
+      this.game.actions.length
     );
     this.targetNetwork = createDeepQNetwork(
       this.game.height,
       this.game.width,
-      this.game.num_actions
+      this.game.actions.length
     );
     this.targetNetwork.trainable = false;
     this.optimizer = train.adam(this.learningRate);
@@ -75,9 +76,9 @@ export class SnakeGameAgent {
         );
         const predict = this.onlineNetwork.predict(stateTensor);
         if (Array.isArray(predict)) {
-          action = this.game.all_actions[predict[0].argMax(-1).dataSync()[0]];
+          action = this.game.actions[predict[0].argMax(-1).dataSync()[0]];
         } else {
-          action = this.game.all_actions[predict.argMax(-1).dataSync()[0]];
+          action = this.game.actions[predict.argMax(-1).dataSync()[0]];
         }
       });
     }
@@ -86,12 +87,15 @@ export class SnakeGameAgent {
       reward,
       done,
       fruitEaten,
-    } = this.game.step(action, true);
-    this.replayMemory.append({ state, action, reward, done, next_state });
+    } = this.game.step(action);
+
+    this.replayMemory.append([state, action, reward, done, next_state]);
     this.cumulativeReward_ += reward;
+
     if (fruitEaten) {
       this.fruitsEaten_++;
     }
+
     const output = {
       action,
       cumulativeReward: this.cumulativeReward_,
@@ -109,12 +113,12 @@ export class SnakeGameAgent {
     const lossFunction = () =>
       tidy(() => {
         const stateTensor = getStateTensor(
-          batch.map((example) => example.state),
+          batch.map((example) => example[0]),
           this.game.height,
           this.game.width
         );
         const actionTensor = tensor1d(
-          batch.map((example) => example.action),
+          batch.map((example) => example[1]),
           "int32"
         );
         const qs = this.onlineNetwork
@@ -123,9 +127,9 @@ export class SnakeGameAgent {
           .mul(oneHot(actionTensor, this.game.num_actions))
           .sum(-1);
 
-        const rewardTensor = tensor1d(batch.map((example) => example.reward));
+        const rewardTensor = tensor1d(batch.map((example) => example[2]));
         const nextStateTensor = getStateTensor(
-          batch.map((example) => example.next_state),
+          batch.map((example) => example[4]),
           this.game.height,
           this.game.width
         );
@@ -134,7 +138,7 @@ export class SnakeGameAgent {
           // @ts-ignore
           .max(-1);
         const doneMask = scalar(1).sub(
-          tensor1d(batch.map((example) => example.done)).asType("float32")
+          tensor1d(batch.map((example) => example[3])).asType("float32")
         );
         const targetQs = rewardTensor.add(
           nextMaxQTensor.mul(doneMask).mul(gamma)

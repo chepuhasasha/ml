@@ -8,7 +8,8 @@
     "dev:train": "ts-node src/main.ts",
     "build": "tsc",
     "start": "node ./dist/server.js",
-    "train": "node ./dist/main.js"
+    "train": "node ./dist/main.js",
+    "game": "ts-node src/game.ts"
   },
   "author": "Sergei Batukov",
   "license": "ISC",
