@@ -101,6 +101,7 @@ export class SnakeGameAgent {
       cumulativeReward: this.cumulativeReward_,
       done,
       fruitsEaten: this.fruitsEaten_,
+      render: this.game.getRenderString()
     };
     if (done) {
       this.reset();

@@ -59,7 +59,7 @@ export const train = async (
   let steps = 0;
   while (true) {
     agent.trainOnReplayBatch(batchSize, gamma, optimizer);
-    const { cumulativeReward, done, fruitsEaten } = agent.playStep();
+    const { cumulativeReward, done, fruitsEaten, render } = agent.playStep();
     steps += 1;
     // console.log('▷ STEP:')
     // console.log(
@@ -89,6 +89,8 @@ export const train = async (
       console.log(`  ├ EATEN 100 : ${averageEaten100.toFixed(2)}`);
       console.log(`  └ STEPS: ${steps}`);
       console.log(`  EPSILON: ${agent.epsilon.toFixed(3)}`);
+      console.log("\n");
+      console.log(render)
       console.log("\n");
       steps = 0;
       // if (summaryWriter != null) {
