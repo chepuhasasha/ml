@@ -1,5 +1,6 @@
 <template lang="pug">
 .snake
+  //- button(@click='train') TRAIN
   .snake_game
     .snake_game_score 
       span state.score
@@ -21,6 +22,43 @@ import { ref, inject, onMounted, onUnmounted, reactive, watch } from 'vue'
 import { Action, SnakeGame } from './game'
 import { Player } from './player'
 import type { ClientOptions } from './main'
+// import { io } from 'socket.io-client'
+
+// const config = {
+//   game: {
+//     height: 9,
+//     width: 9,
+//     food: 1,
+//     snake: 2
+//   },
+//   epsilon: {
+//     init: 0.5,
+//     final: 0.01,
+//     decay_frames: 1e5
+//   },
+//   gamma: 0.99,
+//   learning_rate: 1e-3,
+//   replay_buffer_size: 1e4,
+//   batch_size: 64,
+//   thresholds: {
+//     cumulative_reward: 500,
+//     max_frames: 1e6
+//   },
+//   sync_every_frames: 1e3,
+//   version: 1
+// }
+
+// const socket = io('localhost:3000', {
+//   withCredentials: true
+// })
+
+// socket.on('state', (data) => {
+//   console.log(data)
+// })
+
+// const train = () => {
+//   socket.emit('train', config)
+// }
 
 const options = inject<ClientOptions>('options') as ClientOptions
 const cvs = ref<HTMLCanvasElement | null>(null)
@@ -122,18 +160,16 @@ const step = (action: Action) => {
   }
 }
 
-const loadModel = () => {
+const loadModel = async () => {
   state.load.model = true
-  player
-    .loadModel(state.url)
-    .then(() => {
-      state.hasModel = true
-      state.load.model = false
-    })
-    .catch(() => {
-      state.hasModel = false
-      state.load.model = false
-    })
+  const model = await player.loadModel(state.url)
+  if (model) {
+    state.hasModel = true
+    state.load.model = false
+  } else {
+    state.hasModel = false
+    state.load.model = false
+  }
 }
 
 const play = () => {

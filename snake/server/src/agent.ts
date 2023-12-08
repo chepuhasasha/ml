@@ -56,7 +56,7 @@ export class SnakeGameAgent {
     this.game.reset();
   }
 
-  playStep() {
+  playStep(trigger: boolean = true) {
     this.epsilon =
       this.frameCount >= this.epsilonDecayFrames
         ? this.epsilonFinal
@@ -87,7 +87,7 @@ export class SnakeGameAgent {
       reward,
       done,
       fruitEaten,
-    } = this.game.step(action);
+    } = this.game.step(action, trigger);
 
     this.replayMemory.append([state, action, reward, done, next_state]);
     this.cumulativeReward_ += reward;

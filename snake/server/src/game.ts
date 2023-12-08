@@ -104,7 +104,7 @@ export class SnakeGame {
   public randomAction() {
     return Math.floor(this.actions.length * Math.random());
   }
-  public step(action: Action, just_check: boolean = false) {
+  public step(action: Action, trigger: boolean = true) {
     let reward = Reward.NOT_EAT;
     let fruitEaten = false;
     let done = false;
@@ -125,9 +125,7 @@ export class SnakeGame {
       done,
       fruitEaten,
     };
-    this.listeners.forEach((cb) => {
-      cb(result);
-    });
+
     const getResult = () => {
       const result = {
         state: {
@@ -138,9 +136,11 @@ export class SnakeGame {
         done,
         fruitEaten,
       };
-      this.listeners.forEach((cb) => {
-        cb(result);
-      });
+      if(trigger) {
+        this.listeners.forEach((cb) => {
+          cb(result);
+        });
+      }
       return result;
     };
 
@@ -216,11 +216,9 @@ export class SnakeGame {
       food = this.makeFood(1, food, snake);
     }
 
-    if (!just_check) {
-      this.snake = snake;
-      this.food = food;
-      this.snake_dir = dir;
-    }
+    this.snake = snake;
+    this.food = food;
+    this.snake_dir = dir;
 
     return getResult();
   }

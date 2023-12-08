@@ -17,13 +17,14 @@ export class Player {
   }
 
   public async loadModel(url: string) {
-    try {
-      this.dqn = await loadLayersModel(url)
-      this.dqn.predict(this.getStateTensor())
+    return await loadLayersModel(url).then((model) => {
+      this.dqn = model
       console.log('Model loaded.')
-    } catch (err) {
+      return this.dqn
+    }).catch(() => {
       console.log('Failed to load model.')
-    }
+      return null
+    })
   }
 
   public getStateTensor() {
