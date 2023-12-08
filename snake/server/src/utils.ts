@@ -16,11 +16,9 @@ export const getStateTensor = (
     if (state[n] == null) {
       continue;
     }
-    // Mark the snake.
     state[n].s.forEach((yx, i) => {
       b.set(i === 0 ? 2 : 1, n, yx[0], yx[1], 0);
     });
-    // Mark the fruit(s).
     state[n].f.forEach((yx) => {
       b.set(1, n, yx[0], yx[1], 1);
     });

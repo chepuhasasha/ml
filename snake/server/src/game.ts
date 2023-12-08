@@ -57,7 +57,7 @@ export class SnakeGame {
       }
     }
 
-    let empty = grid.filter((g) => {
+    const empty = grid.filter((g) => {
       return (
         !food.find((f) => f.x === g.x && f.y === g.y) &&
         !snake.find((s) => s.x === g.x && s.y === g.y)
@@ -93,7 +93,7 @@ export class SnakeGame {
   }
   public reset() {
     this.initSnake(this.snakeLen);
-    this.food = this.makeFood(this.foodLen, this.food, this.snake);
+    this.food = this.makeFood(this.foodLen, [], this.snake);
   }
   public getState(): State {
     return {
@@ -202,14 +202,19 @@ export class SnakeGame {
     snake.unshift({ ...head });
 
     // Did the snake eat?
-    food.forEach((f) => {
+    food = food.filter((f) => {
       if (f.x === head.x && f.y === head.y) {
         reward = Reward.EAT;
         fruitEaten = true;
         snake.push(lastSnakeBlock);
-        food = this.makeFood(1, food, snake);
+        return false;
       }
+      return true;
     });
+
+    if (fruitEaten) {
+      food = this.makeFood(1, food, snake);
+    }
 
     if (!just_check) {
       this.snake = snake;
@@ -241,11 +246,12 @@ export class SnakeGame {
           });
         return updatedRow;
       })
-      .reduce((acc, row) => {
-        acc += `|${row}|\n`;
+      .reduce((acc, row, i, arr) => {
+        acc += `|${row}|`;
+        if (i < arr.length - 1) {
+          acc += "\n";
+        }
         return acc;
       }, "");
   }
 }
-
-

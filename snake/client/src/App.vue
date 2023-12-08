@@ -5,23 +5,29 @@
       span state.score
       | {{ state.score.toFixed(2)  }}
     canvas(ref='cvs')
-  .snake_tools
+  .snake_tools(v-if='!state.hasModel')
     label MODEL URL:
     input(v-model='state.url')
-    button(v-if='state.url' @click='loadModel') {{ state.load.model ? "Loading..." : "Load"  }}
-    label(v-if='state.hasModel') SPEED: step in {{ state.speed }} ms.
-    input(v-if='state.hasModel' type='range' v-model='state.speed' :min='10' :max='200')
-    button(v-if='state.hasModel' @click='play') {{ state.play ? "STOP" : "PLAY"  }}
+    button(v-if='state.url' @click='loadModel') {{ state.load.model ? "Loading..." : "MAKE AGENT"  }}
+  .snake_tools(v-else)
+    label SPEED: step in {{ state.speed }} ms.
+    input(type='range' v-model='state.speed' :min='10' :max='200')
+    button(@click='play') {{ state.play ? "STOP" : "PLAY"  }}
+    button(@click='kill') KILL
 
 </template>
 <script lang="ts" setup>
 import { ref, inject, onMounted, onUnmounted, reactive, watch } from 'vue'
-import { Action, SnakeGame } from './utils'
+import { Action, SnakeGame } from './game'
+import { Player } from './player'
 import type { ClientOptions } from './main'
 
 const options = inject<ClientOptions>('options') as ClientOptions
 const cvs = ref<HTMLCanvasElement | null>(null)
+
 const game = new SnakeGame(options.height, options.height, options.foodLen, options.snakeLen)
+const player = new Player(game)
+
 game.onStep((data) => {
   state.score += data.reward
   if (data.done) {
@@ -118,27 +124,40 @@ const step = (action: Action) => {
 
 const loadModel = () => {
   state.load.model = true
-  game.loadModel(state.url).then(() => {
-    state.hasModel = true
-    state.load.model = false
-  }).catch(() => {
-    state.hasModel = false
-    state.load.model = false
-  })
+  player
+    .loadModel(state.url)
+    .then(() => {
+      state.hasModel = true
+      state.load.model = false
+    })
+    .catch(() => {
+      state.hasModel = false
+      state.load.model = false
+    })
 }
+
 const play = () => {
   state.play = !state.play
-  game.interval = +state.speed;
-  game.autoPlay()
+  player.speed = +state.speed
+  player.playOrPause()
 }
+
+const kill = () => {
+  state.play = false
+  state.hasModel = false
+  game.reset()
+  render()
+  player.reset()
+}
+
 watch(
   () => state.speed,
   (n, o) => {
-    game.autoPlay()
-    game.interval = +n;
-    game.autoPlay()
+    player.playOrPause()
+    player.speed = +n
+    player.playOrPause()
   }
-);
+)
 
 const keydown = (e: KeyboardEvent) => {
   if (e.code === 'ArrowUp') {
