@@ -15,7 +15,7 @@
   "replay_buffer_size": 1e4,
   "batch_size": 64,
   "thresholds": {
-    "cumulative_reward": 500,
+    "cumulative_reward": 100,
     "max_frames": 1e6
   },
   "sync_every_frames": 1e3,

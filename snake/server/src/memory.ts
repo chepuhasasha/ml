@@ -4,12 +4,21 @@ import type { Action, State } from "./game";
 export type BufferItem = [State, Action, number, boolean, State]; // - Stane, Action, reward, done, Next State
 
 export class Memory {
-  buffer: BufferItem[] = [];
+  buffer: (BufferItem | null)[] = [];
   bufferIndices_: number[] = [];
   index: number = 0;
   length: number = 0;
-  constructor(private maxLen: number) {
-    this.buffer = Array(maxLen).fill(null);
+  maxLen: number;
+  constructor(maxLen: number) {
+    this.maxLen = maxLen;
+    this.buffer = [];
+    for (let i = 0; i < maxLen; ++i) {
+      this.buffer.push(null);
+    }
+    this.index = 0;
+    this.length = 0;
+
+    this.bufferIndices_ = [];
     for (let i = 0; i < maxLen; ++i) {
       this.bufferIndices_.push(i);
     }
@@ -28,6 +37,7 @@ export class Memory {
       );
     }
     util.shuffle(this.bufferIndices_);
+
     const out = [];
     for (let i = 0; i < batchSize; ++i) {
       out.push(this.buffer[this.bufferIndices_[i]]);

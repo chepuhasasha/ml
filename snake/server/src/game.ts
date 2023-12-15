@@ -38,8 +38,6 @@ export class SnakeGame {
   snake_dir: Directions = Directions.UP;
   readonly actions = [Action.FORWARD, Action.RIGHT, Action.LEFT];
 
-  public listeners: ((data: StepResult) => void)[] = [];
-
   constructor(
     public height: number,
     public width: number,
@@ -104,7 +102,7 @@ export class SnakeGame {
   public randomAction() {
     return Math.floor(this.actions.length * Math.random());
   }
-  public step(action: Action, trigger: boolean = true) {
+  public step(action: Action) {
     let reward = Reward.NOT_EAT;
     let fruitEaten = false;
     let done = false;
@@ -136,11 +134,9 @@ export class SnakeGame {
         done,
         fruitEaten,
       };
-      if(trigger) {
-        this.listeners.forEach((cb) => {
-          cb(result);
-        });
-      }
+      this.snake = snake;
+      this.food = food;
+      this.snake_dir = dir;
       return result;
     };
 
@@ -216,14 +212,7 @@ export class SnakeGame {
       food = this.makeFood(1, food, snake);
     }
 
-    this.snake = snake;
-    this.food = food;
-    this.snake_dir = dir;
-
     return getResult();
-  }
-  public onStep(cb: (data: StepResult) => void) {
-    this.listeners.push(cb);
   }
   public getRenderString() {
     const result = Array(this.height).fill(" ".repeat(this.width));

@@ -34,10 +34,6 @@ const main = async (options: TrainOptions) => {
     options.game.snake
   );
 
-  game.onStep((data) => {
-    console.log(data);
-  });
-
   const agent = new SnakeGameAgent(
     game,
     options.replay_buffer_size,
@@ -91,13 +87,7 @@ io.on("connection", (socket: Socket) => {
         options.game.food,
         options.game.snake
       );
-    
-      game.onStep((data) => {
-        if(data.done) {
-          socket.emit('state', data)
-        }
-      });
-    
+          
       const agent = new SnakeGameAgent(
         game,
         options.replay_buffer_size,

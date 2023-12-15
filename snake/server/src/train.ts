@@ -31,7 +31,7 @@ export interface TrainOptions {
 class MovingAverager {
   buffer: number[] = [];
   constructor(bufferLength: number) {
-    this.buffer = Array(bufferLength).fill(0);
+    this.buffer = Array(bufferLength).fill(null);
   }
 
   append(x: number) {
@@ -40,15 +40,7 @@ class MovingAverager {
   }
 
   average() {
-    return (
-      this.buffer.reduce((x, prev) => {
-        if (prev) {
-          return x + prev;
-        } else {
-          return x;
-        }
-      }, 0) / this.buffer.length
-    );
+    return this.buffer.reduce((x, prev) => x + prev) / this.buffer.length;
   }
 }
 
@@ -68,7 +60,7 @@ export const train = async (
     console.log(
       `FILLING THE REPLAY BUFFER: ${i + 1} / ${agent.replayBufferSize}`
     );
-    agent.playStep(false);
+    agent.playStep();
   }
 
   const rewardAverager100 = new MovingAverager(100);
@@ -93,10 +85,12 @@ export const train = async (
       console.log(`█ FRAME #${agent.frameCount} / ${max_num_frames}`);
       console.log(`  ├ CUMULATIVE REWARD 100: ${averageReward100.toFixed(1)}`);
       console.log(`  ├ EATEN 100 : ${averageEaten100.toFixed(2)}`);
+      console.log(`  ├ REWARD: ${cumulativeReward.toFixed(1)}`);
       console.log(`  └ STEPS: ${steps}`);
       console.log(`  EPSILON: ${agent.epsilon.toFixed(3)}`);
       console.log("DEATH SNAPSHOT:");
       console.log(render);
+      console.log("\n");
       steps = 0;
 
       // // LOG
@@ -124,7 +118,7 @@ export const train = async (
       // СОХРАНЯЮ СЕТЬ
       if (averageReward100 > averageReward100Best) {
         averageReward100Best = averageReward100;
-        const savePath = `./models/dqn/v${version}`
+        const savePath = `./models/dqn/v${version}`;
         if (!fs.existsSync(savePath)) {
           fs.mkdir(savePath, { recursive: true }, () => {});
         }

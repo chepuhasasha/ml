@@ -56,7 +56,7 @@ export class SnakeGameAgent {
     this.game.reset();
   }
 
-  playStep(trigger: boolean = true) {
+  playStep() {
     this.epsilon =
       this.frameCount >= this.epsilonDecayFrames
         ? this.epsilonFinal
@@ -87,7 +87,7 @@ export class SnakeGameAgent {
       reward,
       done,
       fruitEaten,
-    } = this.game.step(action, trigger);
+    } = this.game.step(action);
 
     this.replayMemory.append([state, action, reward, done, next_state]);
     this.cumulativeReward_ += reward;
@@ -114,31 +114,36 @@ export class SnakeGameAgent {
     const lossFunction = () =>
       tidy(() => {
         const stateTensor = getStateTensor(
+          // @ts-ignore
           batch.map((example) => example[0]),
           this.game.height,
           this.game.width
-        );
-        const actionTensor = tensor1d(
+          );
+          const actionTensor = tensor1d(
+          // @ts-ignore
           batch.map((example) => example[1]),
           "int32"
-        );
-        const qs = this.onlineNetwork
+          );
+          const qs = this.onlineNetwork
           .apply(stateTensor, { training: true })
           // @ts-ignore
           .mul(oneHot(actionTensor, this.game.actions.length))
           .sum(-1);
-
-        const rewardTensor = tensor1d(batch.map((example) => example[2]));
-        const nextStateTensor = getStateTensor(
+          
+          // @ts-ignore
+          const rewardTensor = tensor1d(batch.map((example) => example[2]));
+          const nextStateTensor = getStateTensor(
+          // @ts-ignore
           batch.map((example) => example[4]),
           this.game.height,
           this.game.width
-        );
-        const nextMaxQTensor = this.targetNetwork
+          );
+          const nextMaxQTensor = this.targetNetwork
           .predict(nextStateTensor)
           // @ts-ignore
           .max(-1);
-        const doneMask = scalar(1).sub(
+          const doneMask = scalar(1).sub(
+          // @ts-ignore
           tensor1d(batch.map((example) => example[3])).asType("float32")
         );
         const targetQs = rewardTensor.add(
